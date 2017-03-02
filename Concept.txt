@@ -1,0 +1,34 @@
+' Robotics with the Boe-Bot
+
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+counter    VAR Word
+
+' Travels 6.25 inches
+
+FREQOUT 4, 250, 3000
+
+FOR counter = 1 TO 41
+  PULSOUT 12, 850
+  PULSOUT 13, 650
+  PAUSE 20
+NEXT
+
+END
+
+// Robotics with the Boe-Bot
+
+var pulseWidth;
+
+// Travels 6.25 inches
+
+board.freqOut(4, 250, 3000);
+
+for (var counter = 1; counter <= 41; counter++) {
+  board.pulseOut(12, 850);
+  board.pulseOut(13, 650);
+  os.pause(20);
+}
+
+os.exit()
