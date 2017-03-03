@@ -2,6 +2,7 @@ local args = {...}
 
 local argparse = require("argparse")
 local lexer = require("lexer")
+local parser = require("parser")
 
 local colors = {
     black   = 0,
@@ -32,6 +33,10 @@ local argKey = {
         longname = "out",
         accept = 1
     },
+    d = {
+        longname = "ldump",
+        accept = 1
+    },
     long = {
         help = {
             desc = "Display this information"
@@ -40,6 +45,11 @@ local argKey = {
             shortname = "o",
             desc = "Change the output file",
             extraSyntax = "<file>"
+        },
+        ldump = {
+            shortname = "d",
+            desc = "Output the lex dump",
+            extraSyntax = "[outFile]"
         }
     }
 }
@@ -72,4 +82,6 @@ else
     return
 end
 
-lexer.lex(data)
+local flags = outArgs.d and 1 or 0
+lexer.lex(data, flags)
+parser.parse(data, flags)
