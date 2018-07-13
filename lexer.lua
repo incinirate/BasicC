@@ -46,6 +46,12 @@ function Buffer:next()
     return self.c
 end
 
+function Buffer:skip(n)
+    for i = 1, n do
+        self:next()
+    end
+end
+
 local keywords = {
     ["var"] = true,
     ["for"] = true,
@@ -109,13 +115,11 @@ end
 -- TODO: Implement decimal numbers as they are
 -- currently lexed as two numbers seperated by delim
 local function tokenizeNumber(buffer, tokenList)
-    if buffer.c:match("[0-9]") then
-        local strB = buffer.c
-        while buffer:peek():match("[0-9]") do
-            strB = strB .. buffer:next()
-        end
-        buffer:next()
-        tokenList[#tokenList + 1] = {strB, "NUMBER"}
+    local nmatch = buffer.str:match("^-?%d*%.?%d+", buffer.pos)
+
+    if nmatch then
+        buffer:skip(#nmatch)
+        tokenList[#tokenList + 1] = {nmatch, "NUMBER"}
         return false
     end
     return true
@@ -131,11 +135,10 @@ local function tokenizeAssignment(buffer, tokenList)
 end
 
 local function tokenizeComparison(buffer, tokenList)
-    if buffer.c == "=" then
+    if buffer.c == "=" or buffer.c == "!" then
         if buffer:peek() == "=" then
-            buffer:next()
-            tokenList[#tokenList + 1] = {"==", "COMPARE"}
-            buffer:next()
+            tokenList[#tokenList + 1] = {buffer.c .. "=", "COMPARE"}
+            buffer:skip(2)
             return false
         end
         return true
@@ -190,7 +193,7 @@ local function consumeComment(buffer, _)
 end
 
 local function consumeWhitespace(buffer)
-    while buffer.c:match("[ \n]") do
+    while buffer.c:match("%s") do
         buffer:next()
     end
 end
@@ -211,8 +214,8 @@ function lexer.lex(str, flags)
         if BRK then BRK = tokenizeIndentifier(buffer, tokenList) end
         if BRK then BRK = tokenizeDelimiter(buffer, tokenList) end
         if BRK then BRK = tokenizeNumber(buffer, tokenList) end
-        if BRK then BRK = tokenizeAssignment(buffer, tokenList) end
         if BRK then BRK = tokenizeComparison(buffer, tokenList) end
+        if BRK then BRK = tokenizeAssignment(buffer, tokenList) end
         if BRK then BRK = tokenizeArithmetic(buffer, tokenList) end
 
         if BRK then

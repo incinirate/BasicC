@@ -6,7 +6,7 @@ var pulseWidth;
 
 board.freqOut(4, 250, 3000);
 
-for (var counter = 1; counter <= 41; counter++) {
+for (var counter = -1; counter != 41; counter++) {
   board.pulseOut(12, 850);
   board.pulseOut(13, 650);
   os.pause(20);
